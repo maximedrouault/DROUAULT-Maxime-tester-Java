@@ -26,23 +26,13 @@ public class FareCalculatorService {
             // Else, the price is calculating with the duration of parking.
             switch (ticket.getParkingSpot().getParkingType()) {
                 case CAR: {
-                    // Added 5% discount for regular car users.
-                    if (discount) {
-                        ticket.setPrice(duration * Fare.CAR_RATE_PER_HOUR * 0.95);
-                    // Full price for non-regular users.
-                    } else {
-                        ticket.setPrice(duration * Fare.CAR_RATE_PER_HOUR);
-                    }
+                    // Added 5% discount for regular car users (factor 0.95) and Full price for non-regular users (factor 1).
+                    ticket.setPrice(duration * Fare.CAR_RATE_PER_HOUR * (discount ? 0.95 : 1));
                 break;
                 }
                 case BIKE: {
-                    // Added 5% discount for regular bike users.
-                    if (discount) {
-                        ticket.setPrice(duration * Fare.BIKE_RATE_PER_HOUR * 0.95);
-                    // Full price for non-regular users.
-                    } else {
-                    ticket.setPrice(duration * Fare.BIKE_RATE_PER_HOUR);
-                    }
+                    // Added 5% discount for regular bike users (factor 0.95) and Full price for non-regular users (factor 1).
+                    ticket.setPrice(duration * Fare.BIKE_RATE_PER_HOUR * (discount ? 0.95 : 1));
                 break;
                 }
                 default:

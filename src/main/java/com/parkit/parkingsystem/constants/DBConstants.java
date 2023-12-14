@@ -10,5 +10,5 @@ public class DBConstants {
     public static final String GET_TICKET = "select t.PARKING_NUMBER, t.ID, t.PRICE, t.IN_TIME, t.OUT_TIME, p.TYPE from ticket t,parking p where p.parking_number = t.parking_number and t.VEHICLE_REG_NUMBER=? order by t.IN_TIME DESC limit 1";
 
     // Request to count number of occurrence for a specified vehicle.
-    public static final String GET_SPECIFIC_VEHICLE_TICKETS = "SELECT COUNT(*) FROM ticket WHERE VEHICLE_REG_NUMBER = ?";
+    public static final String GET_NUMBER_OF_TICKETS = "SELECT COUNT(*) FROM ticket WHERE VEHICLE_REG_NUMBER = ?";
 }
