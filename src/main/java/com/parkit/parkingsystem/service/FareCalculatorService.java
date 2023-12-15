@@ -19,11 +19,8 @@ public class FareCalculatorService {
         double duration = (double) (outHour - inHour) / numberOfMillisecondsInAnHour;
 
         // If the duration of parking is less than 30 minutes (0.5h), the price is 0$ (free).
-        if (duration <= 0.5){
-            ticket.setPrice(0);
-        } else {
-
-            // Else, the price is calculating with the duration of parking.
+        if (duration > 0.5){
+            // The price is calculated based on the duration of parking and if the time is more than 30 minutes.
             switch (ticket.getParkingSpot().getParkingType()) {
                 case CAR: {
                     // Added 5% discount for regular car users (factor 0.95) and Full price for non-regular users (factor 1).

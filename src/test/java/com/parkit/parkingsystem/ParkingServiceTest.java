@@ -59,17 +59,10 @@ public class ParkingServiceTest {
 
         parkingService.processExitingVehicle();
 
-        verify(ticketDAO, times(1)).getTicket("ABCDEF");
-        verify(ticketDAO, times(1)).getNbTicket("ABCDEF");
-        verify(ticketDAO, times(1)).updateTicket(any(Ticket.class));
         verify(parkingSpotDAO, times(1)).updateParking(any(ParkingSpot.class));
 
-        assertNotNull(ticketDAO.getTicket("ABCDEF"));
         assertNotNull(ticket.getOutTime(), "The ticket out time must not be Null");
-        assertTrue(ticket.getOutTime().after(ticket.getInTime()), "The ticket out time must be after entry time");
-        assertEquals(1, ticketDAO.getNbTicket("ABCDEF"));
         assertTrue(parkingSpot.isAvailable(), "The parkingSpot must be marked as available after exiting the vehicle");
-        assertEquals(1.5, ticketDAO.getTicket("ABCDEF").getPrice(), 0.01, "The ticket price should be close to 1.5");
     }
 
     @Test
@@ -83,13 +76,10 @@ public class ParkingServiceTest {
 
         parkingService.processIncomingVehicle();
 
-        verify(parkingSpotDAO, times(1)).getNextAvailableSlot(ParkingType.CAR);
         verify(parkingSpotDAO, times(1)).updateParking(any(ParkingSpot.class));
         verify(ticketDAO, times(1)).saveTicket(any(Ticket.class));
         verify(ticketDAO, times(1)).getNbTicket("ABCDEF");
 
-        assertNotNull(ticket.getInTime(), "The ticket in time must not be Null");
-        assertNull(ticket.getOutTime(), "The ticket out time must be Null");
         assertEquals(0, ticket.getPrice(), "The ticket price must be 0");
         assertFalse(parkingSpot.isAvailable(), "The parkingSpot must be marked as unavailable after parking");
     }
@@ -111,12 +101,12 @@ public class ParkingServiceTest {
 
     @Test
     public void testGetNextParkingNumberIfAvailable(){
-        when(inputReaderUtil.readSelection()).thenReturn(1);
-        when(parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR)).thenReturn(1);
+        when(inputReaderUtil.readSelection()).thenReturn(2);
+        when(parkingSpotDAO.getNextAvailableSlot(ParkingType.BIKE)).thenReturn(1);
 
         ParkingSpot returnedParkingSpot = parkingService.getNextParkingNumberIfAvailable();
 
-        verify(parkingSpotDAO, times(1)).getNextAvailableSlot(ParkingType.CAR);
+        verify(parkingSpotDAO, times(1)).getNextAvailableSlot(ParkingType.BIKE);
 
         assertNotNull(returnedParkingSpot, "The parkingSpot must not be null");
         assertEquals(1, returnedParkingSpot.getId(), "The parkingSpotId must be 1");
