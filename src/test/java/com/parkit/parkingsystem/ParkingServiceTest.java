@@ -8,6 +8,7 @@ import com.parkit.parkingsystem.model.Ticket;
 import com.parkit.parkingsystem.service.ParkingService;
 import com.parkit.parkingsystem.util.InputReaderUtil;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -16,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -136,4 +136,72 @@ public class ParkingServiceTest {
 
         assertNull(returnedParkingSpot, "Should return null due to wrong vehicle type input");
     }
+
+    @Test
+    public void testProcessIncomingVehicleIfRegularUser() throws Exception {
+        when(inputReaderUtil.readSelection()).thenReturn(1);
+        when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn("ABCDEF");
+        when(parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR)).thenReturn(1);
+        when(parkingSpotDAO.updateParking(any(ParkingSpot.class))).thenReturn(true);
+        when(ticketDAO.getNbTicket("ABCDEF")).thenReturn(2);
+        when(ticketDAO.saveTicket(any(Ticket.class))).thenReturn(true);
+
+        parkingService.processIncomingVehicle();
+
+        verify(ticketDAO, times(1)).getNbTicket("ABCDEF");
+        assertTrue(parkingService.isRegularUser("ABCDEF"), "User must be regular");
+    }
+
+    @Test
+    public void testProcessExitingVehicleIfRegularUser() throws Exception {
+        when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn("ABCDEF");
+        when(ticketDAO.getTicket(anyString())).thenReturn(ticket);
+        when(ticketDAO.getNbTicket("ABCDEF")).thenReturn(2);
+        when(ticketDAO.updateTicket(any(Ticket.class))).thenReturn(true);
+        when(parkingSpotDAO.updateParking(any(ParkingSpot.class))).thenReturn(true);
+
+        parkingService.processExitingVehicle();
+
+
+        verify(ticketDAO, times(1)).getNbTicket("ABCDEF");
+        assertTrue(parkingService.isRegularUser("ABCDEF"), "User must be regular");
+    }
+
+    @Test
+    public void processIncomingVehicleException() throws Exception {
+        when(inputReaderUtil.readSelection()).thenReturn(1);
+        when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn("ABCDEF");
+        when(parkingSpotDAO.getNextAvailableSlot(ParkingType.CAR)).thenReturn(1);
+        when(parkingSpotDAO.updateParking(any(ParkingSpot.class))).thenThrow(new RuntimeException("Database failure"));
+
+        parkingService.processIncomingVehicle();
+
+        verify(parkingSpotDAO, times(1)).updateParking(any(ParkingSpot.class));
+        verify(ticketDAO, never()).saveTicket(any(Ticket.class));
+    }
+
+    @Test
+    public void processExitingVehicleException() throws Exception {
+        when(inputReaderUtil.readVehicleRegistrationNumber()).thenReturn("ABCDEF");
+        when(ticketDAO.getTicket(anyString())).thenThrow(new RuntimeException("Database failure"));
+
+        parkingService.processExitingVehicle();
+
+        verify(ticketDAO, times(1)).getTicket(anyString());
+        verify(ticketDAO, never()).getNbTicket(anyString());
+    }
+
+
+    ///// TEST ////
+    @Test
+    @Disabled
+    public void getVehicleType_ShouldThrowException_WhenSelectionIsInvalid() {
+        // Arrange
+        when(inputReaderUtil.readSelection()).thenReturn(3);
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> parkingService.getVehicleType());
+    }
+
+    ///////////////
 }
