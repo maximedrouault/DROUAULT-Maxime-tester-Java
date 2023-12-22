@@ -149,6 +149,7 @@ public class ParkingServiceTest {
         parkingService.processIncomingVehicle();
 
         verify(ticketDAO, times(1)).getNbTicket("ABCDEF");
+
         assertTrue(parkingService.isRegularUser("ABCDEF"), "User must be regular");
     }
 
@@ -162,8 +163,8 @@ public class ParkingServiceTest {
 
         parkingService.processExitingVehicle();
 
-
         verify(ticketDAO, times(1)).getNbTicket("ABCDEF");
+
         assertTrue(parkingService.isRegularUser("ABCDEF"), "User must be regular");
     }
 
@@ -190,18 +191,4 @@ public class ParkingServiceTest {
         verify(ticketDAO, times(1)).getTicket(anyString());
         verify(ticketDAO, never()).getNbTicket(anyString());
     }
-
-
-    ///// TEST ////
-    @Test
-    @Disabled
-    public void getVehicleType_ShouldThrowException_WhenSelectionIsInvalid() {
-        // Arrange
-        when(inputReaderUtil.readSelection()).thenReturn(3);
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> parkingService.getVehicleType());
-    }
-
-    ///////////////
 }
